@@ -48,6 +48,18 @@ class OtpSettingsStore(private val pref: SharedPreferences, private val key: Str
         return pref.getString(key + KEY_SECRET, VAL_INVALID_STRING) != VAL_INVALID_STRING
     }
 
+    fun clear() {
+        if (!canLoad()) return
+
+        pref.edit()
+                .putString(key + KEY_SECRET, VAL_INVALID_STRING)
+                .putInt(key + KEY_TYPE, VAL_INVALID_INT).apply()
+
+        if (settings.type == OtpType.HOTP) {
+            pref.edit().putInt(key + KEY_COUNTER, VAL_INVALID_INT).apply()
+        }
+    }
+
     /**
      * Loads the saved config without checking for their existence.
      * Use [OtpSettingsStore.canLoad] before calling this function

@@ -34,12 +34,13 @@
 
     <Button
         android:id="@+id/key_submit_button"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
         android:text="@string/submit_key_text"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/space3"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/type_choice" />
 
@@ -80,5 +81,27 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/key_value" />
+
+    <Button
+        android:id="@+id/key_clear_button"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:text="@string/clear_key_text"
+        app:layout_constraintBottom_toBottomOf="@+id/key_submit_button"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/space3"
+        app:layout_constraintTop_toBottomOf="@+id/type_choice" />
+
+    <Space
+        android:id="@+id/space3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        app:layout_constraintEnd_toEndOf="@+id/type_choice"
+        app:layout_constraintStart_toStartOf="@+id/type_choice"
+        tools:layout_editor_absoluteY="216dp" />
 
 </android.support.constraint.ConstraintLayout>
