@@ -1,5 +1,7 @@
-Google Authenticator for Android (open source version)
+LwA ( Lock with Authentication - mobile app )
 ======================================================
+Forked from Google Authenticator for Android (open source version)
+
 Copyright 2010 Google Inc.
 
 https://github.com/google/google-authenticator-android

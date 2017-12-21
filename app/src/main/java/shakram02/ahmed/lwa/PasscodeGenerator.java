@@ -16,6 +16,8 @@
 
 package shakram02.ahmed.lwa;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.io.ByteArrayInputStream;
 import java.io.DataInput;
 import java.io.DataInputStream;
@@ -126,18 +128,16 @@ public class PasscodeGenerator {
      * @return A decimal response code
      * @throws GeneralSecurityException If a JCE exception occur
      */
-    public String generateResponseCode(long state, byte[] challenge)
+    public String generateResponseCode(long state, @NotNull byte[] challenge)
             throws GeneralSecurityException {
-        if (challenge == null) {
-            return generateResponseCode(state);
-        } else {
-            // Allocate space for combination and store.
-            byte value[] = ByteBuffer.allocate(8 + challenge.length)
-                    .putLong(state)  // Write out OTP state
-                    .put(challenge, 0, challenge.length) // Concatenate with challenge.
-                    .array();
-            return generateResponseCode(value);
-        }
+
+        // Allocate space for combination and store.
+        byte value[] = ByteBuffer.allocate(8 + challenge.length)
+                .putLong(state)  // Write out OTP state
+                .put(challenge, 0, challenge.length) // Concatenate with challenge.
+                .array();
+
+        return generateResponseCode(value);
     }
 
     /**
@@ -185,7 +185,7 @@ public class PasscodeGenerator {
      */
     public boolean verifyResponseCode(long challenge, String response)
             throws GeneralSecurityException {
-        String expectedResponse = generateResponseCode(challenge, null);
+        String expectedResponse = generateResponseCode(challenge);
         return expectedResponse.equals(response);
     }
 
@@ -223,7 +223,7 @@ public class PasscodeGenerator {
 
         // Try upto "pastIntervals" before current time, and upto "futureIntervals" after.
         for (int i = -pastIntervals; i <= futureIntervals; ++i) {
-            String candidate = generateResponseCode(currentInterval - i, null);
+            String candidate = generateResponseCode(currentInterval - i);
             if (candidate.equals(timeoutCode)) {
                 return true;
             }

@@ -16,11 +16,11 @@
 
 package shakram02.ahmed.lwa.otp;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.io.UnsupportedEncodingException;
 import java.security.GeneralSecurityException;
-import java.util.Collection;
 
-import shakram02.ahmed.lwa.otp.AccountDb.OtpType;
 import shakram02.ahmed.lwa.PasscodeGenerator;
 
 /**
@@ -35,14 +35,26 @@ public class OtpProvider implements OtpSource {
     private static final int PIN_LENGTH = 6; // HOTP or TOTP
     private static final int REFLECTIVE_PIN_LENGTH = 9; // ROTP
 
-    @Override
-    public int enumerateAccounts(Collection<String> result) {
-        return mAccountDb.getNames(result);
-    }
+    /**
+     * Default passcode timeout period (in seconds)
+     */
+    public static final int DEFAULT_INTERVAL = 30;
+
+    private final OtpSettingsStore otpSettings;
+
+    /**
+     * Counter for time-based OTPs (TOTP).
+     */
+    private final TotpCounter mTotpCounter;
+
+    /**
+     * Clock input for time-based OTPs (TOTP).
+     */
+    private final TotpClock mTotpClock;
 
     @Override
-    public String getNextCode(String accountName) throws OtpSourceException {
-        return getCurrentCode(accountName, null);
+    public String getNextCode() throws OtpSourceException {
+        return getCurrentCode(null);
     }
 
     // This variant is used when an additional challenge, such as URL or
@@ -50,13 +62,13 @@ public class OtpProvider implements OtpSource {
     // The additional string is appended to standard HOTP/TOTP state before
     // applying the MAC function.
     @Override
-    public String respondToChallenge(String accountName, String challenge) throws OtpSourceException {
+    public String respondToChallenge(String challenge) throws OtpSourceException {
         if (challenge == null) {
-            return getCurrentCode(accountName, null);
+            return getCurrentCode(null);
         }
         try {
             byte[] challengeBytes = challenge.getBytes("UTF-8");
-            return getCurrentCode(accountName, challengeBytes);
+            return getCurrentCode(challengeBytes);
         } catch (UnsupportedEncodingException e) {
             return "";
         }
@@ -72,14 +84,9 @@ public class OtpProvider implements OtpSource {
         return mTotpClock;
     }
 
-    private String getCurrentCode(String username, byte[] challenge) throws OtpSourceException {
-        // Account name is required.
-        if (username == null) {
-            throw new OtpSourceException("No account name");
-        }
-
-        OtpType type = mAccountDb.getType(username);
-        String secret = getSecret(username);
+    private String getCurrentCode(byte[] challenge) throws OtpSourceException {
+        OtpType type = otpSettings.getType();
+        String secret = otpSettings.getSecret();
 
         long otp_state = 0;
 
@@ -89,20 +96,20 @@ public class OtpProvider implements OtpSource {
                     mTotpCounter.getValueAtTime(Utilities.millisToSeconds(mTotpClock.currentTimeMillis()));
         } else if (type == OtpType.HOTP) {
             // For counter-based OTP, the state is obtained by incrementing stored counter.
-            mAccountDb.incrementCounter(username);
-            Integer counter = mAccountDb.getCounter(username);
+            otpSettings.incrementCounter();
+            Integer counter = otpSettings.getCounter();
             otp_state = counter.longValue();
         }
 
         return computePin(secret, otp_state, challenge);
     }
 
-    public OtpProvider(AccountDb accountDb, TotpClock totpClock) {
-        this(DEFAULT_INTERVAL, accountDb, totpClock);
+    public OtpProvider(@NotNull OtpSettingsStore otpSettings, @NotNull TotpClock totpClock) {
+        this(DEFAULT_INTERVAL, otpSettings, totpClock);
     }
 
-    public OtpProvider(int interval, AccountDb accountDb, TotpClock totpClock) {
-        mAccountDb = accountDb;
+    public OtpProvider(int interval, @NotNull OtpSettingsStore otpSettings, @NotNull TotpClock totpClock) {
+        this.otpSettings = otpSettings;
         mTotpCounter = new TotpCounter(interval);
         mTotpClock = totpClock;
     }
@@ -133,31 +140,4 @@ public class OtpProvider implements OtpSource {
             throw new OtpSourceException("Crypto failure", e);
         }
     }
-
-    /**
-     * Reads the secret key that was saved on the phone.
-     *
-     * @param user Account name identifying the user.
-     * @return the secret key as base32 encoded string.
-     */
-    String getSecret(String user) {
-        return mAccountDb.getSecret(user);
-    }
-
-    /**
-     * Default passcode timeout period (in seconds)
-     */
-    public static final int DEFAULT_INTERVAL = 30;
-
-    private final AccountDb mAccountDb;
-
-    /**
-     * Counter for time-based OTPs (TOTP).
-     */
-    private final TotpCounter mTotpCounter;
-
-    /**
-     * Clock input for time-based OTPs (TOTP).
-     */
-    private final TotpClock mTotpClock;
 }
