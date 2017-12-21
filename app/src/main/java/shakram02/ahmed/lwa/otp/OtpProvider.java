@@ -16,6 +16,8 @@
 
 package shakram02.ahmed.lwa.otp;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.io.UnsupportedEncodingException;
 import java.security.GeneralSecurityException;
 
@@ -51,8 +53,8 @@ public class OtpProvider implements OtpSource {
     private final TotpClock mTotpClock;
 
     @Override
-    public String getNextCode(String accountName) throws OtpSourceException {
-        return getCurrentCode(accountName, null);
+    public String getNextCode() throws OtpSourceException {
+        return getCurrentCode(null);
     }
 
     // This variant is used when an additional challenge, such as URL or
@@ -60,13 +62,13 @@ public class OtpProvider implements OtpSource {
     // The additional string is appended to standard HOTP/TOTP state before
     // applying the MAC function.
     @Override
-    public String respondToChallenge(String accountName, String challenge) throws OtpSourceException {
+    public String respondToChallenge(String challenge) throws OtpSourceException {
         if (challenge == null) {
-            return getCurrentCode(accountName, null);
+            return getCurrentCode(null);
         }
         try {
             byte[] challengeBytes = challenge.getBytes("UTF-8");
-            return getCurrentCode(accountName, challengeBytes);
+            return getCurrentCode(challengeBytes);
         } catch (UnsupportedEncodingException e) {
             return "";
         }
@@ -82,12 +84,7 @@ public class OtpProvider implements OtpSource {
         return mTotpClock;
     }
 
-    private String getCurrentCode(String username, byte[] challenge) throws OtpSourceException {
-        // Account name is required.
-        if (username == null) {
-            throw new OtpSourceException("No account name");
-        }
-
+    private String getCurrentCode(byte[] challenge) throws OtpSourceException {
         OtpType type = otpSettings.getType();
         String secret = otpSettings.getSecret();
 
@@ -107,11 +104,11 @@ public class OtpProvider implements OtpSource {
         return computePin(secret, otp_state, challenge);
     }
 
-    public OtpProvider(OtpSettingsStore otpSettings, TotpClock totpClock) {
+    public OtpProvider(@NotNull OtpSettingsStore otpSettings, @NotNull TotpClock totpClock) {
         this(DEFAULT_INTERVAL, otpSettings, totpClock);
     }
 
-    public OtpProvider(int interval, OtpSettingsStore otpSettings, TotpClock totpClock) {
+    public OtpProvider(int interval, @NotNull OtpSettingsStore otpSettings, @NotNull TotpClock totpClock) {
         this.otpSettings = otpSettings;
         mTotpCounter = new TotpCounter(interval);
         mTotpClock = totpClock;
