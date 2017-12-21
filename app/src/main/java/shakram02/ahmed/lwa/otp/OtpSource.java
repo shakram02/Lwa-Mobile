@@ -16,23 +16,12 @@
 
 package shakram02.ahmed.lwa.otp;
 
-import java.util.Collection;
-
 /**
  * Abstraction for collection of OTP tokens.
  *
  * @author cemp@google.com (Cem Paya)
  */
 public interface OtpSource {
-
-  /**
-   * Enumerate list of accounts that this OTP token supports.
-   *
-   * @param result Collection to append usernames. This object is NOT cleared on
-   *               entry; if there are existing items, they will not be removed.
-   * @return Number of accounts added to the collection.
-   */
-  int enumerateAccounts(Collection<String> result);
 
   /**
    * Return the next OTP code for specified username.

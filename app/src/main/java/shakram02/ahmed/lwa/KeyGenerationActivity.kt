@@ -2,7 +2,6 @@ package shakram02.ahmed.lwa
 
 import android.app.Activity
 import android.content.Context
-import android.content.SharedPreferences
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -15,7 +14,6 @@ import shakram02.ahmed.lwa.otp.OtpType
 class KeyGenerationActivity : Activity(), TextWatcher {
     private lateinit var mKeyEntryField: EditText
     private lateinit var secretManager: OtpSettingsStore
-    private lateinit var otpSettings: OtpSettingsStore.OtpSettings
     private lateinit var mType: Spinner
 
     companion object {
@@ -28,10 +26,10 @@ class KeyGenerationActivity : Activity(), TextWatcher {
         setupUiEventHandlers()
 
         val packageName = this.applicationContext.packageName
-        secretManager = OtpSettingsStore(this.getPreferences(Context.MODE_PRIVATE), packageName)
+        val sharedPref = this.getPreferences(Context.MODE_PRIVATE)
+        secretManager = OtpSettingsStore(sharedPref, packageName)
 
         if (secretManager.canLoad()) {
-            otpSettings = secretManager.load()
             disableKeySubmitButton()
             showShortToast("Key loaded")
         }

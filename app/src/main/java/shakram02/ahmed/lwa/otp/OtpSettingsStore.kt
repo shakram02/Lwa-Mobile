@@ -5,7 +5,13 @@ import android.content.SharedPreferences
 /**
  * Holds stored OTP token settings
  */
-public class OtpSettingsStore(private val pref: SharedPreferences, private val key: String) {
+class OtpSettingsStore(private val pref: SharedPreferences, private val key: String) {
+    private lateinit var settings: OtpSettings
+
+    init {
+        if (canLoad()) load()
+    }
+
     companion object {
         private const val KEY_SECRET = "SECRET"
         private const val KEY_TYPE = "TYPE"
@@ -20,6 +26,8 @@ public class OtpSettingsStore(private val pref: SharedPreferences, private val k
                 .putInt(key + KEY_TYPE, type.value)
                 .putInt(key + KEY_COUNTER, counter)
                 .apply()
+
+        settings = OtpSettings(secret, type, counter)
     }
 
     fun save(secret: String, type: OtpType) {
@@ -27,15 +35,9 @@ public class OtpSettingsStore(private val pref: SharedPreferences, private val k
                 .putString(key + KEY_SECRET, secret)
                 .putInt(key + KEY_TYPE, type.value)
                 .apply()
-    }
 
-    // TODO HOTP will be added later
-    private fun incrementCounter() {
-        // TODO remove checking for idiots mistakes
-        if (!canLoad()) throw IllegalStateException("Nothing to be loaded")
+        settings = OtpSettings(secret, type)
 
-        val saved: OtpSettings = load()
-        save(saved.secret, saved.type, saved.counter + 1)
     }
 
     /**
@@ -50,11 +52,11 @@ public class OtpSettingsStore(private val pref: SharedPreferences, private val k
      * Loads the saved config without checking for their existence.
      * Use [OtpSettingsStore.canLoad] before calling this function
      */
-    fun load(): OtpSettings {
+    private fun load() {
         val secret = pref.getString(key + KEY_SECRET, VAL_INVALID_STRING)
         val type = OtpType.getEnum(pref.getInt(key + KEY_TYPE, VAL_INVALID_INT))
 
-        return if (type == OtpType.TOTP) {
+        settings = if (type == OtpType.TOTP) {
             OtpSettings(secret, type)
         } else {
             val counter = pref.getInt(key + KEY_COUNTER, VAL_INVALID_INT)
@@ -62,7 +64,40 @@ public class OtpSettingsStore(private val pref: SharedPreferences, private val k
         }
     }
 
-    data class OtpSettings(val secret: String, val type: OtpType, val counter: Int) {
+    private data class OtpSettings(val secret: String, val type: OtpType, val counter: Int) {
         constructor(secret: String, type: OtpType) : this(secret, type, -1)
+
     }
+
+    fun getType(): OtpType {
+        return settings.type
+    }
+
+//    fun getSecret(): String {
+//        return settings.secret
+//    }
+
+    fun getCoutner(): Int {
+        TODO()
+    }
+
+    // TODO HOTP will be added later
+    fun incrementCounter() {
+        // TODO remove checking for idiots mistakes
+//        if (!canLoad()) throw IllegalStateException("Nothing to be loaded")
+//
+//        val saved: OtpSettings = load()
+//        save(saved.secret, saved.type, saved.counter + 1)
+        TODO("Not implemented")
+    }
+
+    fun getCounter(): Int {
+//        return settings.counter
+        TODO("Not implemented")
+    }
+
+    fun getSecret(): String {
+        return settings.secret
+    }
+
 }
