@@ -20,7 +20,6 @@ import java.io.UnsupportedEncodingException;
 import java.security.GeneralSecurityException;
 import java.util.Collection;
 
-import shakram02.ahmed.lwa.otp.AccountDb.OtpType;
 import shakram02.ahmed.lwa.PasscodeGenerator;
 
 /**
