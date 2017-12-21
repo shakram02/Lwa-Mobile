@@ -6,4 +6,14 @@
     <string name="key_placeholder">Generated Key</string>
     <string name="enter_key_too_short">Key value is short</string>
     <string name="enter_key_illegal_char">Invalid key character</string>
+
+
+    <!-- NOTE: order matters here and must be the same as OtpType.*
+         TODO(adhintz): make order not matter by using something like enums -->
+    <!-- Different type of OTP accounts, displayed in drop-down menu when manually adding accounts.
+         Codes can be generated either based on time or based on an incrementing counter. -->
+    <string-array name="type">
+        <item>Time based</item>
+        <item>Counter based</item>
+    </string-array>
 </resources>
