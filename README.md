@@ -1,4 +1,4 @@
-LwA ( Lock with authenticator - mobile app )
+LwA ( Lock with Authentication - mobile app )
 ======================================================
 Forked from Google Authenticator for Android (open source version)
 
