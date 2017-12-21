@@ -9,6 +9,8 @@ version that doesn't get changes synced to it from the Play store version.
 
 Description
 -----------
+This is an **immensely stripped** version of the original application.
+
 The Google Authenticator project includes implementations of one-time passcode
 generators for several mobile platforms, as well as a pluggable authentication
 module (PAM). One-time passcodes are generated using open standards developed by
