@@ -32,8 +32,10 @@ class KeyGenerationActivity : Activity(), TextWatcher {
         secretManager = OtpSettingsStore(sharedPref, packageName)
 
         if (secretManager.canLoad()) {
-            disableKeySubmitButton()
+            updateButtonsCanNowClear()
             showShortToast("Key loaded")
+        } else {
+            updateButtonsCanNowClear()
         }
 
         mOtpProvider = DependencyInjector.getOtpProvider(secretManager, this.applicationContext) as OtpProvider
@@ -62,13 +64,19 @@ class KeyGenerationActivity : Activity(), TextWatcher {
     private fun performKeySubmission() {
         // Store in preferences
         storeSecretPref()
-        disableKeySubmitButton()
+        updateButtonsCanNowClear()
         showShortToast("Key saved")
     }
 
     private fun onGenerateKeyRequest() {
         val code = mOtpProvider.nextCode
         displayGeneratedCode(code)
+    }
+
+    private fun resetSecret() {
+        secretManager.clear()
+        updateButtonsCanNowSubmit()
+        showShortToast("Key cleared")
     }
 
     /*
@@ -93,8 +101,22 @@ class KeyGenerationActivity : Activity(), TextWatcher {
         // Nothing
     }
 
-    private fun disableKeySubmitButton() {
-        findViewById<Button>(R.id.key_submit_button).isEnabled = false
+    private fun disableButton(resourceInt: Int) {
+        findViewById<Button>(resourceInt).isEnabled = false
+    }
+
+    private fun enableButton(resourceInt: Int) {
+        findViewById<Button>(resourceInt).isEnabled = true
+    }
+
+    private fun updateButtonsCanNowSubmit() {
+        enableButton(R.id.key_submit_button)
+        disableButton(R.id.key_clear_button)
+    }
+
+    private fun updateButtonsCanNowClear() {
+        enableButton(R.id.key_clear_button)
+        disableButton(R.id.key_submit_button)
     }
 
     private fun showShortToast(text: String) {
@@ -135,5 +157,6 @@ class KeyGenerationActivity : Activity(), TextWatcher {
         mType.adapter = types
 
         findViewById<Button>(R.id.key_generate_button).setOnClickListener { onGenerateKeyRequest() }
+        findViewById<Button>(R.id.key_clear_button).setOnClickListener { resetSecret() }
     }
 }
