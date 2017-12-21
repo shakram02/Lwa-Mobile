@@ -7,6 +7,7 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.widget.*
 import shakram02.ahmed.lwa.otp.Base32String
+import shakram02.ahmed.lwa.otp.OtpProvider
 import shakram02.ahmed.lwa.otp.OtpSettingsStore
 import shakram02.ahmed.lwa.otp.OtpType
 
@@ -15,6 +16,7 @@ class KeyGenerationActivity : Activity(), TextWatcher {
     private lateinit var mKeyEntryField: EditText
     private lateinit var secretManager: OtpSettingsStore
     private lateinit var mType: Spinner
+    private lateinit var mOtpProvider: OtpProvider
 
     companion object {
         private const val MIN_KEY_BYTES = 10
@@ -33,6 +35,8 @@ class KeyGenerationActivity : Activity(), TextWatcher {
             disableKeySubmitButton()
             showShortToast("Key loaded")
         }
+
+        mOtpProvider = DependencyInjector.getOtpProvider(secretManager, this.applicationContext) as OtpProvider
     }
 
     private fun validateKey(submitting: Boolean): Boolean {
@@ -60,6 +64,11 @@ class KeyGenerationActivity : Activity(), TextWatcher {
         storeSecretPref()
         disableKeySubmitButton()
         showShortToast("Key saved")
+    }
+
+    private fun onGenerateKeyRequest() {
+        val code = mOtpProvider.nextCode
+        displayGeneratedCode(code)
     }
 
     /*
@@ -92,6 +101,11 @@ class KeyGenerationActivity : Activity(), TextWatcher {
         Toast.makeText(this, text, Toast.LENGTH_SHORT).show()
     }
 
+    private fun displayGeneratedCode(code: String) {
+        val tv = findViewById<TextView>(R.id.generated_key_text_view)
+        tv.text = code
+    }
+
     private fun storeSecretPref() {
         // TODO(cemp): This depends on the OtpType enumeration to correspond
         // to array indices for the dropdown with different OTP modes.
@@ -119,5 +133,7 @@ class KeyGenerationActivity : Activity(), TextWatcher {
                 R.array.type, android.R.layout.simple_spinner_item)
         types.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         mType.adapter = types
+
+        findViewById<Button>(R.id.key_generate_button).setOnClickListener { onGenerateKeyRequest() }
     }
 }
