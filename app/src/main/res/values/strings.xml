@@ -1,7 +1,8 @@
 <resources>
     <string name="app_name">Lwa</string>
     <string name="enter_key_hint">Key</string>
-    <string name="submit_key_text">Submit</string>
+    <string name="submit_key_text">Use Key</string>
+    <string name="clear_key_text">Clear Key</string>
     <string name="generate_key_text">Generate</string>
     <string name="key_placeholder">Generated Key</string>
     <string name="enter_key_too_short">Key value is short</string>
