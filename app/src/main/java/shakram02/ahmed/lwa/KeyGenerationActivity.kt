@@ -2,10 +2,15 @@ package shakram02.ahmed.lwa
 
 import android.app.Activity
 import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.view.inputmethod.InputMethodManager
 import android.widget.*
+import com.google.zxing.client.android.Intents
+import com.google.zxing.integration.android.IntentIntegrator
 import shakram02.ahmed.lwa.otp.Base32String
 import shakram02.ahmed.lwa.otp.OtpProvider
 import shakram02.ahmed.lwa.otp.OtpSettingsStore
@@ -42,7 +47,7 @@ class KeyGenerationActivity : Activity(), TextWatcher {
     }
 
     private fun validateKey(submitting: Boolean): Boolean {
-        val userEnteredKey = getEnteredKey()
+        val userEnteredKey = replaceSimilarChars(mKeyEntryField.text.toString())
 
         return try {
             val decoded = Base32String.decode(userEnteredKey)
@@ -61,10 +66,11 @@ class KeyGenerationActivity : Activity(), TextWatcher {
         }
     }
 
-    private fun performKeySubmission() {
+    private fun performKeySubmission(enteredKey: String) {
         // Store in preferences
-        storeSecretPref()
+        storeSecretPref(enteredKey)
         updateButtonsCanNowClear()
+        hideKeyboard()
         showShortToast("Key saved")
     }
 
@@ -84,8 +90,7 @@ class KeyGenerationActivity : Activity(), TextWatcher {
      * They're removed probably because user confusion when copying keys to phones
      * RFC 4648/3548
      **/
-    private fun getEnteredKey(): String {
-        val enteredKey = mKeyEntryField.text.toString()
+    private fun replaceSimilarChars(enteredKey: String): String {
         return enteredKey.replace('1', 'I').replace('0', 'O')
     }
 
@@ -128,19 +133,55 @@ class KeyGenerationActivity : Activity(), TextWatcher {
         tv.text = code
     }
 
-    private fun storeSecretPref() {
+    private fun hideKeyboard() {
+        val view = this.currentFocus ?: return
+
+        val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        imm.hideSoftInputFromWindow(view.windowToken, 0)
+    }
+
+    // Get the results:
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent) {
+        val result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data)
+        if (result == null) {
+            super.onActivityResult(requestCode, resultCode, data)
+            return
+        }
+
+        if (result.contents != null) {
+            Toast.makeText(this, "Scanned: " + result.contents, Toast.LENGTH_LONG).show()
+            handleQrUri(Uri.parse(result.contents))
+        }
+    }
+
+    private fun handleQrUri(parsedUri: Uri) {
+        val secret = parsedUri.getQueryParameter("secret")
+        performKeySubmission(secret)
+        mKeyEntryField.setText(secret, TextView.BufferType.EDITABLE)
+    }
+
+    private fun scanUsingQr() {
+        val integrator = IntentIntegrator(this)
+        integrator.addExtra(Intents.Scan.QR_CODE_MODE, true)
+        integrator.initiateScan()
+        // TODO: replace stuff in QR
+        // enteredKey.replace('1', 'I').replace('0', 'O')
+    }
+
+    private fun storeSecretPref(enteredKey: String) {
         // TODO(cemp): This depends on the OtpType enumeration to correspond
         // to array indices for the dropdown with different OTP modes.
-        val mode = if (mType.selectedItemPosition == OtpType.TOTP.value)
-            OtpType.TOTP
-        else
-            OtpType.HOTP
-
-        if (mode == OtpType.TOTP) {
-            secretManager.save(getEnteredKey(), mode)
-        } else {
-            secretManager.save(getEnteredKey(), mode, 0)
-        }
+        secretManager.save(replaceSimilarChars(enteredKey), OtpType.TOTP)
+//        val mode = if (mType.selectedItemPosition == OtpType.TOTP.value)
+//            OtpType.TOTP
+//        else
+//            OtpType.HOTP
+//
+//        if (mode == OtpType.TOTP) {
+//            secretManager.save(replaceSimilarChars(enteredKey), mode)
+//        } else {
+//            secretManager.save(replaceSimilarChars(enteredKey), mode, 0)
+//        }
     }
 
     private fun setupUiEventHandlers() {
@@ -148,15 +189,20 @@ class KeyGenerationActivity : Activity(), TextWatcher {
         mKeyEntryField.addTextChangedListener(this)
 
         findViewById<Button>(R.id.key_submit_button)
-                .setOnClickListener { if (validateKey(true)) performKeySubmission() }
+                .setOnClickListener {
+                    if (validateKey(true))
+                        performKeySubmission(mKeyEntryField.text.toString())
+                }
 
-        mType = findViewById(R.id.type_choice)
-        val types = ArrayAdapter.createFromResource(this,
-                R.array.type, android.R.layout.simple_spinner_item)
-        types.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        mType.adapter = types
+//        mType = findViewById(R.id.type_choice)
+//        val types = ArrayAdapter.createFromResource(this,
+//                R.array.type, android.R.layout.simple_spinner_item)
+//        types.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+//        mType.adapter = types
 
         findViewById<Button>(R.id.key_generate_button).setOnClickListener { onGenerateKeyRequest() }
         findViewById<Button>(R.id.key_clear_button).setOnClickListener { resetSecret() }
+        findViewById<Button>(R.id.key_qr_scan).setOnClickListener { scanUsingQr() }
+
     }
 }
