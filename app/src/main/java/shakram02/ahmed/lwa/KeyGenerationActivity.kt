@@ -128,6 +128,11 @@ class KeyGenerationActivity : Activity(), TextWatcher {
         tv.text = code
     }
 
+    private fun scanUsingQr() {
+        // TODO: replace stuff in QR
+        // enteredKey.replace('1', 'I').replace('0', 'O')
+    }
+
     private fun storeSecretPref() {
         // TODO(cemp): This depends on the OtpType enumeration to correspond
         // to array indices for the dropdown with different OTP modes.
@@ -158,5 +163,7 @@ class KeyGenerationActivity : Activity(), TextWatcher {
 
         findViewById<Button>(R.id.key_generate_button).setOnClickListener { onGenerateKeyRequest() }
         findViewById<Button>(R.id.key_clear_button).setOnClickListener { resetSecret() }
+        findViewById<Button>(R.id.key_qr_scan).setOnClickListener { scanUsingQr() }
+
     }
 }
