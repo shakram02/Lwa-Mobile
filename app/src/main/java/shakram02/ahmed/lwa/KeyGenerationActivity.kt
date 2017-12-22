@@ -2,9 +2,12 @@ package shakram02.ahmed.lwa
 
 import android.app.Activity
 import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.view.inputmethod.InputMethodManager
 import android.widget.*
 import com.google.zxing.client.android.Intents
 import com.google.zxing.integration.android.IntentIntegrator
@@ -12,11 +15,6 @@ import shakram02.ahmed.lwa.otp.Base32String
 import shakram02.ahmed.lwa.otp.OtpProvider
 import shakram02.ahmed.lwa.otp.OtpSettingsStore
 import shakram02.ahmed.lwa.otp.OtpType
-import android.widget.Toast
-import android.content.Intent
-import android.net.Uri
-import android.util.Log
-import android.view.inputmethod.InputMethodManager
 
 
 class KeyGenerationActivity : Activity(), TextWatcher {
@@ -150,12 +148,9 @@ class KeyGenerationActivity : Activity(), TextWatcher {
             return
         }
 
-        if (result.contents == null) {
-            Toast.makeText(this, "Cancelled", Toast.LENGTH_LONG).show()
-        } else {
+        if (result.contents != null) {
             Toast.makeText(this, "Scanned: " + result.contents, Toast.LENGTH_LONG).show()
             handleQrUri(Uri.parse(result.contents))
-
         }
     }
 
@@ -176,16 +171,17 @@ class KeyGenerationActivity : Activity(), TextWatcher {
     private fun storeSecretPref(enteredKey: String) {
         // TODO(cemp): This depends on the OtpType enumeration to correspond
         // to array indices for the dropdown with different OTP modes.
-        val mode = if (mType.selectedItemPosition == OtpType.TOTP.value)
-            OtpType.TOTP
-        else
-            OtpType.HOTP
-
-        if (mode == OtpType.TOTP) {
-            secretManager.save(replaceSimilarChars(enteredKey), mode)
-        } else {
-            secretManager.save(replaceSimilarChars(enteredKey), mode, 0)
-        }
+        secretManager.save(replaceSimilarChars(enteredKey), OtpType.TOTP)
+//        val mode = if (mType.selectedItemPosition == OtpType.TOTP.value)
+//            OtpType.TOTP
+//        else
+//            OtpType.HOTP
+//
+//        if (mode == OtpType.TOTP) {
+//            secretManager.save(replaceSimilarChars(enteredKey), mode)
+//        } else {
+//            secretManager.save(replaceSimilarChars(enteredKey), mode, 0)
+//        }
     }
 
     private fun setupUiEventHandlers() {
@@ -198,11 +194,11 @@ class KeyGenerationActivity : Activity(), TextWatcher {
                         performKeySubmission(mKeyEntryField.text.toString())
                 }
 
-        mType = findViewById(R.id.type_choice)
-        val types = ArrayAdapter.createFromResource(this,
-                R.array.type, android.R.layout.simple_spinner_item)
-        types.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        mType.adapter = types
+//        mType = findViewById(R.id.type_choice)
+//        val types = ArrayAdapter.createFromResource(this,
+//                R.array.type, android.R.layout.simple_spinner_item)
+//        types.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+//        mType.adapter = types
 
         findViewById<Button>(R.id.key_generate_button).setOnClickListener { onGenerateKeyRequest() }
         findViewById<Button>(R.id.key_clear_button).setOnClickListener { resetSecret() }
