@@ -11,6 +11,23 @@
                         "startOffsets": "55,112,163,329",
                         "endColumns": "56,50,165,102",
                         "endOffsets": "107,158,324,427"
+                    },
+                    "to": {
+                        "startLines": "3,4,5,6",
+                        "startColumns": "4,4,4,4",
+                        "startOffsets": "156,213,264,430",
+                        "endColumns": "56,50,165,102",
+                        "endOffsets": "208,259,425,528"
+                    }
+                },
+                {
+                    "source": "/home/ahmed/.gradle/caches/transforms-1/files-1.1/support-compat-27.0.2.aar/fd46fbfae03edec6b50fdef584992542/res/values-hi/values-hi.xml",
+                    "from": {
+                        "startLines": "2",
+                        "startColumns": "4",
+                        "startOffsets": "55",
+                        "endColumns": "100",
+                        "endOffsets": "151"
                     }
                 }
             ]

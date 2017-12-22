@@ -4,6 +4,16 @@
             "outputFile": "/mnt/Exec/code/android/Lwa/zxing-android-embedded/build/intermediates/incremental/mergeDebugAndroidTestResources/merged.dir/values-zh-rCN/values-zh-rCN.xml",
             "map": [
                 {
+                    "source": "/home/ahmed/.gradle/caches/transforms-1/files-1.1/support-compat-27.0.2.aar/fd46fbfae03edec6b50fdef584992542/res/values-zh-rCN/values-zh-rCN.xml",
+                    "from": {
+                        "startLines": "2",
+                        "startColumns": "4",
+                        "startOffsets": "55",
+                        "endColumns": "100",
+                        "endOffsets": "151"
+                    }
+                },
+                {
                     "source": "/mnt/Exec/code/android/Lwa/zxing-android-embedded/build/intermediates/bundles/debug/res/values-zh-rCN/values-zh-rCN.xml",
                     "from": {
                         "startLines": "2,3,4,5",
@@ -11,6 +21,13 @@
                         "startOffsets": "55,104,151,238",
                         "endColumns": "48,46,86,68",
                         "endOffsets": "99,146,233,302"
+                    },
+                    "to": {
+                        "startLines": "3,4,5,6",
+                        "startColumns": "4,4,4,4",
+                        "startOffsets": "156,205,252,339",
+                        "endColumns": "48,46,86,68",
+                        "endOffsets": "200,247,334,403"
                     }
                 }
             ]

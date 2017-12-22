@@ -15,8 +15,18 @@ ADDED from /mnt/Exec/code/android/Lwa/zxing-android-embedded/AndroidManifest.xml
 		ADDED from /mnt/Exec/code/android/Lwa/zxing-android-embedded/AndroidManifest.xml:19:20-60
 uses-sdk
 ADDED from /mnt/Exec/code/android/Lwa/zxing-android-embedded/AndroidManifest.xml:22:3-41
+INJECTED from /mnt/Exec/code/android/Lwa/zxing-android-embedded/AndroidManifest.xml:22:3-41
+INJECTED from /mnt/Exec/code/android/Lwa/zxing-android-embedded/AndroidManifest.xml:22:3-41
+INJECTED from /mnt/Exec/code/android/Lwa/zxing-android-embedded/AndroidManifest.xml:22:3-41
+INJECTED from /mnt/Exec/code/android/Lwa/zxing-android-embedded/AndroidManifest.xml:22:3-41
+	android:targetSdkVersion
+		INJECTED from /mnt/Exec/code/android/Lwa/zxing-android-embedded/AndroidManifest.xml
+		ADDED from /mnt/Exec/code/android/Lwa/zxing-android-embedded/AndroidManifest.xml:22:3-41
+		INJECTED from /mnt/Exec/code/android/Lwa/zxing-android-embedded/AndroidManifest.xml
 	android:minSdkVersion
 		ADDED from /mnt/Exec/code/android/Lwa/zxing-android-embedded/AndroidManifest.xml:22:13-38
+		INJECTED from /mnt/Exec/code/android/Lwa/zxing-android-embedded/AndroidManifest.xml
+		INJECTED from /mnt/Exec/code/android/Lwa/zxing-android-embedded/AndroidManifest.xml
 uses-feature#android.hardware.camera
 ADDED from /mnt/Exec/code/android/Lwa/zxing-android-embedded/AndroidManifest.xml:25:3-82
 	android:required

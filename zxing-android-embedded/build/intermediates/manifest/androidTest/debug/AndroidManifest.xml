@@ -3,8 +3,8 @@
     package="com.google.zxing.client.android.test" >
 
     <uses-sdk
-        android:minSdkVersion="9"
-        android:targetSdkVersion="9" />
+        android:minSdkVersion="19"
+        android:targetSdkVersion="26" />
 
     <instrumentation
         android:name="android.test.InstrumentationTestRunner"
