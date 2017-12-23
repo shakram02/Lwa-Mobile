@@ -17,7 +17,7 @@ import shakram02.ahmed.lwa.otp.*
 class KeyGenerationActivity : Activity(), TextWatcher {
     private lateinit var mKeyEntryField: EditText
     private lateinit var secretManager: OtpSettingsStore
-    private lateinit var mType: Spinner
+//    private lateinit var mType: Spinner
     private lateinit var mOtpProvider: OtpProvider
     private lateinit var mOtpClock: TotpClock
 
@@ -73,7 +73,7 @@ class KeyGenerationActivity : Activity(), TextWatcher {
         storeSecretPref(enteredKey)
         updateButtonsCanNowClear()
         hideKeyboard()
-        showShortToast("Key saved")
+        showShortToast("Key saved: " + enteredKey)
     }
 
     private fun onGenerateKeyRequest() {
@@ -151,12 +151,17 @@ class KeyGenerationActivity : Activity(), TextWatcher {
         }
 
         if (result.contents != null) {
-            Toast.makeText(this, "Scanned: " + result.contents, Toast.LENGTH_LONG).show()
             handleQrUri(Uri.parse(result.contents))
         }
     }
 
     private fun handleQrUri(parsedUri: Uri) {
+        val secretKeyParamName = "secret"
+        if (!parsedUri.queryParameterNames.contains(secretKeyParamName)) {
+            Toast.makeText(this, "Invalid OTP QR Code", Toast.LENGTH_LONG).show()
+            return
+        }
+
         val secret = parsedUri.getQueryParameter("secret")
         performKeySubmission(secret)
         mKeyEntryField.setText(secret, TextView.BufferType.EDITABLE)
