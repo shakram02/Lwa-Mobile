@@ -17,9 +17,21 @@ import shakram02.ahmed.lwa.otp.*
 class KeyGenerationActivity : Activity(), TextWatcher {
     private lateinit var mKeyEntryField: EditText
     private lateinit var secretManager: OtpSettingsStore
-//    private lateinit var mType: Spinner
+    //    private lateinit var mType: Spinner
     private lateinit var mOtpProvider: OtpProvider
-    private lateinit var mOtpClock: TotpClock
+
+    private lateinit var mOtpCounter: TotpCounter
+    private lateinit var countDownIndicator: CountdownIndicator
+
+    /**
+     * Task that periodically notifies this activity about the amount of time remaining until
+     * the TOTP codes refresh. The task also notifies this activity when TOTP codes refresh.
+     */
+    private lateinit var mTotpCountdownTask: TotpCountdownTask
+
+    /** Clock used for generating TOTP verification codes.  */
+    private lateinit var mTotpClock: TotpClock
+>>>>>>> checkpoint
 
     companion object {
         private const val MIN_KEY_BYTES = 10
@@ -211,5 +223,45 @@ class KeyGenerationActivity : Activity(), TextWatcher {
         findViewById<Button>(R.id.key_clear_button).setOnClickListener { resetSecret() }
         findViewById<Button>(R.id.key_qr_scan).setOnClickListener { scanUsingQr() }
 
+    }
+
+    private fun setTotpCountdownPhase(phase: Double) {
+        mTotpCountdownPhase = phase
+        countDownIndicator.setPhase(phase)
+    }
+
+    private fun setTotpCountdownPhaseFromTimeTillNextValue(millisRemaining: Long) {
+        setTotpCountdownPhase(
+                millisRemaining.toDouble() / Utilities.secondsToMillis(mTotpCounter.getTimeStep()))
+    }
+
+    private fun updateCodesAndStartTotpCountdownTask() {
+        stopTotpCountdownTask()
+
+        mTotpCountdownTask = TotpCountdownTask(mTotpCounter, mTotpClock, TOTP_COUNTDOWN_REFRESH_PERIOD)
+        mTotpCountdownTask.setListener({
+            fun onTotpCountdown(millisRemaining: Long) {
+                if (isFinishing) {
+                    // No need to reach to this even because the Activity is finishing anyway
+                    return
+                }
+                setTotpCountdownPhaseFromTimeTillNextValue(millisRemaining)
+            }
+
+            fun onTotpCounterValueChanged() {
+                if (isFinishing) {
+                    // No need to reach to this even because the Activity is finishing anyway
+                    return
+                }
+                refreshVerificationCodes()
+            }
+        })
+
+        mTotpCountdownTask.startAndNotifyListener()
+    }
+
+    private fun refreshVerificationCodes() {
+        refreshUserList()
+        setTotpCountdownPhase(1.0)
     }
 }
