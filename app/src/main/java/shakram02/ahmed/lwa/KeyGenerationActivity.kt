@@ -11,10 +11,7 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.*
 import com.google.zxing.client.android.Intents
 import com.google.zxing.integration.android.IntentIntegrator
-import shakram02.ahmed.lwa.otp.Base32String
-import shakram02.ahmed.lwa.otp.OtpProvider
-import shakram02.ahmed.lwa.otp.OtpSettingsStore
-import shakram02.ahmed.lwa.otp.OtpType
+import shakram02.ahmed.lwa.otp.*
 
 
 class KeyGenerationActivity : Activity(), TextWatcher {
@@ -22,10 +19,12 @@ class KeyGenerationActivity : Activity(), TextWatcher {
     private lateinit var secretManager: OtpSettingsStore
     private lateinit var mType: Spinner
     private lateinit var mOtpProvider: OtpProvider
+    private lateinit var mOtpClock: TotpClock
 
     companion object {
         private const val MIN_KEY_BYTES = 10
     }
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -43,7 +42,8 @@ class KeyGenerationActivity : Activity(), TextWatcher {
             updateButtonsCanNowClear()
         }
 
-        mOtpProvider = DependencyInjector.getOtpProvider(secretManager, this.applicationContext) as OtpProvider
+        mOtpClock = TotpClock(this)
+        mOtpProvider = OtpProvider(secretManager, mOtpClock)
     }
 
     private fun validateKey(submitting: Boolean): Boolean {
@@ -67,6 +67,8 @@ class KeyGenerationActivity : Activity(), TextWatcher {
     }
 
     private fun performKeySubmission(enteredKey: String) {
+        mOtpProvider = OtpProvider(secretManager, mOtpClock)
+
         // Store in preferences
         storeSecretPref(enteredKey)
         updateButtonsCanNowClear()
