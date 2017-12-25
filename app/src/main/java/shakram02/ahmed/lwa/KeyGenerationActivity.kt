@@ -20,7 +20,6 @@ class KeyGenerationActivity : Activity(), TextWatcher {
     //    private lateinit var mType: Spinner
     private lateinit var mOtpProvider: OtpProvider
 
-    private lateinit var mOtpCounter: TotpCounter
     private lateinit var countDownIndicator: CountdownIndicator
 
     /**
@@ -31,10 +30,14 @@ class KeyGenerationActivity : Activity(), TextWatcher {
 
     /** Clock used for generating TOTP verification codes.  */
     private lateinit var mTotpClock: TotpClock
->>>>>>> checkpoint
+    private lateinit var mTotpCounter: TotpCounter
+    private var mTotpCountdownPhase: Double = 0.0
+
 
     companion object {
         private const val MIN_KEY_BYTES = 10
+        /** Frequency (milliseconds) with which TOTP countdown indicators are updated.  */
+        private const val TOTP_COUNTDOWN_REFRESH_PERIOD: Long = 100
     }
 
 
@@ -54,8 +57,10 @@ class KeyGenerationActivity : Activity(), TextWatcher {
             updateButtonsCanNowClear()
         }
 
-        mOtpClock = TotpClock(this)
-        mOtpProvider = OtpProvider(secretManager, mOtpClock)
+        this.mTotpClock = TotpClock(this)
+        mOtpProvider = OtpProvider(secretManager, this.mTotpClock)
+        mTotpCounter = mOtpProvider.totpCounter
+        countDownIndicator = findViewById(R.id.countdown_view)
     }
 
     private fun validateKey(submitting: Boolean): Boolean {
@@ -79,7 +84,7 @@ class KeyGenerationActivity : Activity(), TextWatcher {
     }
 
     private fun performKeySubmission(enteredKey: String) {
-        mOtpProvider = OtpProvider(secretManager, mOtpClock)
+        mOtpProvider = OtpProvider(secretManager, this.mTotpClock)
 
         // Store in preferences
         storeSecretPref(enteredKey)
@@ -225,6 +230,12 @@ class KeyGenerationActivity : Activity(), TextWatcher {
 
     }
 
+    override fun onStart() {
+        super.onStart()
+
+        updateCodesAndStartTotpCountdownTask()
+    }
+
     private fun setTotpCountdownPhase(phase: Double) {
         mTotpCountdownPhase = phase
         countDownIndicator.setPhase(phase)
@@ -238,9 +249,10 @@ class KeyGenerationActivity : Activity(), TextWatcher {
     private fun updateCodesAndStartTotpCountdownTask() {
         stopTotpCountdownTask()
 
-        mTotpCountdownTask = TotpCountdownTask(mTotpCounter, mTotpClock, TOTP_COUNTDOWN_REFRESH_PERIOD)
-        mTotpCountdownTask.setListener({
-            fun onTotpCountdown(millisRemaining: Long) {
+        mTotpCountdownTask = TotpCountdownTask(mTotpCounter, this.mTotpClock, TOTP_COUNTDOWN_REFRESH_PERIOD)
+        mTotpCountdownTask.setListener(object : TotpCountdownTask.Listener {
+
+            override fun onTotpCountdown(millisRemaining: Long) {
                 if (isFinishing) {
                     // No need to reach to this even because the Activity is finishing anyway
                     return
@@ -248,20 +260,29 @@ class KeyGenerationActivity : Activity(), TextWatcher {
                 setTotpCountdownPhaseFromTimeTillNextValue(millisRemaining)
             }
 
-            fun onTotpCounterValueChanged() {
+            override fun onTotpCounterValueChanged() {
                 if (isFinishing) {
                     // No need to reach to this even because the Activity is finishing anyway
                     return
                 }
                 refreshVerificationCodes()
             }
+
         })
 
         mTotpCountdownTask.startAndNotifyListener()
     }
 
+    private fun stopTotpCountdownTask() {
+        try {
+            mTotpCountdownTask.stop()
+        } catch (e: UninitializedPropertyAccessException) {
+            // No problems, just an early access
+        }
+    }
+
     private fun refreshVerificationCodes() {
-        refreshUserList()
+        onGenerateKeyRequest()
         setTotpCountdownPhase(1.0)
     }
 }

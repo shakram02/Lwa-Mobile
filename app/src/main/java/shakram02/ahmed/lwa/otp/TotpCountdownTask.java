@@ -74,7 +74,7 @@ public class TotpCountdownTask implements Runnable {
      *
      * @param listener listener or {@code null} for no listener.
      */
-    void setListener(Listener listener) {
+    public void setListener(Listener listener) {
         mListener = listener;
     }
 
@@ -86,7 +86,7 @@ public class TotpCountdownTask implements Runnable {
      *
      * @throws IllegalStateException if the task has already been stopped.
      */
-    void startAndNotifyListener() {
+    public void startAndNotifyListener() {
         if (mShouldStop) {
             throw new IllegalStateException("Task already stopped and cannot be restarted.");
         }
@@ -97,7 +97,7 @@ public class TotpCountdownTask implements Runnable {
     /**
      * Stops this task. This task will never notify the listener after the task has been stopped.
      */
-    void stop() {
+    public void stop() {
         mShouldStop = true;
     }
 
